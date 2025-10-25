@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  nunez_db:
+    image: mysql:8.0
+    container_name: nunez_db_service
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-nunez_root_pass}"
+      MYSQL_DATABASE: nunez_db
+      MYSQL_USER: nunez_user
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-nunez_pass_secure}"
+    volumes:
+      - nunez_db_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - nunez_network
+    ports:
+      - "3306:3306" 
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nunez_backend_service
+    restart: unless-stopped
+    environment:
+      DB_HOST: nunez_db
+      DB_PORT: 3306
+      DB_USER: nunez_user
+      DB_PASSWORD: "${MYSQL_PASSWORD:-nunez_pass_secure}"
+      DB_NAME: nunez_db
+      NODE_ENV: production
+    depends_on:
+      - nunez_db
+    networks:
+      - nunez_network
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nunez_frontend_service
+    restart: unless-stopped
+    environment:
+      REACT_APP_API_URL: http://nunez_backend_service:5000
+    depends_on:
+      - backend
+    networks:
+      - nunez_network
+    ports:
+      - "3000:3000"
+
+volumes:
+  nunez_db_data:
+    name: nunez_db_data
+
+networks:
+  nunez_network:
+    driver: bridge
