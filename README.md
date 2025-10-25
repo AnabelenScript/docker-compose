@@ -95,7 +95,3 @@ Estas variables son leídas por los contenedores al iniciarse, garantizando una 
 
 ---
 
-## Conclusión
-
-Este entorno permite ejecutar una aplicación completa de manera aislada, replicable y persistente, integrando la comunicación entre el frontend, el backend y la base de datos sin necesidad de configuraciones manuales adicionales.  
-Docker Compose se encarga de construir, iniciar y conectar todos los servicios automáticamente, asegurando la portabilidad del entorno de desarrollo o producción.
